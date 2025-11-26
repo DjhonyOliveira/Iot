@@ -1,0 +1,600 @@
+[
+    {
+        "id": "3fef1023aece59ef",
+        "type": "tab",
+        "label": "Dashboard Célula 09",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "b166115a8a147b57",
+        "type": "function",
+        "z": "3fef1023aece59ef",
+        "name": "Publica get_status",
+        "func": "msg.topic ='iot/riodosul/si/BSN22025T26F8/cell/09/device/c09-ayrton-djonatan/cmd';\nmsg.payload={\"action\":'get_status'};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 350,
+        "y": 200,
+        "wires": [
+            [
+                "36e3de9d5dfa8d84"
+            ]
+        ]
+    },
+    {
+        "id": "36e3de9d5dfa8d84",
+        "type": "mqtt out",
+        "z": "3fef1023aece59ef",
+        "name": "cmd",
+        "topic": "",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "74afebde8a3aa745",
+        "x": 570,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "ce642f0fad9949de",
+        "type": "mqtt in",
+        "z": "3fef1023aece59ef",
+        "name": "telemetry",
+        "topic": "iot/riodosul/si/BSN22025T26F8/cell/09/device/c09-ayrton-djonatan/telemetry",
+        "qos": "1",
+        "datatype": "auto",
+        "broker": "74afebde8a3aa745",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 120,
+        "y": 300,
+        "wires": [
+            [
+                "301f2075516df9a0"
+            ]
+        ]
+    },
+    {
+        "id": "301f2075516df9a0",
+        "type": "json",
+        "z": "3fef1023aece59ef",
+        "name": "JSON >> obj (telemetry)",
+        "property": "payload",
+        "action": "obj",
+        "pretty": false,
+        "x": 390,
+        "y": 300,
+        "wires": [
+            [
+                "88985281013bbadd",
+                "30dc27eac921872d"
+            ]
+        ]
+    },
+    {
+        "id": "88985281013bbadd",
+        "type": "function",
+        "z": "3fef1023aece59ef",
+        "name": "Métricas Distancia",
+        "func": "const p=msg.payload;\nreturn[\n    {payload:p.metrics?.dist_cm},\n    {payload:p.metrics?.qualidade}\n    ];",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 670,
+        "y": 300,
+        "wires": [
+            [
+                "d52a9de9c8a7c895"
+            ]
+        ]
+    },
+    {
+        "id": "30dc27eac921872d",
+        "type": "function",
+        "z": "3fef1023aece59ef",
+        "name": "Telemetry >> MongoDB",
+        "func": "const p=msg.payload||{};\nmsg.payload={ts:new Date((p.ts||Math.floor(Date.now()/1000))*1000),\n            cellId:p.cellId,\n            devId:p.devId,\n            status:p.status,\n            metrics:p.metrics,\n            units:p.units,\n            thresholds:p.thresholds,\n            _topic:msg.topic};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 690,
+        "y": 380,
+        "wires": [
+            [
+                "e073ae345c07eb77"
+            ]
+        ]
+    },
+    {
+        "id": "4cedde21811049ef",
+        "type": "mqtt in",
+        "z": "3fef1023aece59ef",
+        "name": "event",
+        "topic": "iot/riodosul/si/BSN22025T26F8/cell/09/device/c09-ayrton-djonatan/event",
+        "qos": "1",
+        "datatype": "auto",
+        "broker": "74afebde8a3aa745",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 110,
+        "y": 500,
+        "wires": [
+            [
+                "cbe2d6f2c22deaa0"
+            ]
+        ]
+    },
+    {
+        "id": "cbe2d6f2c22deaa0",
+        "type": "json",
+        "z": "3fef1023aece59ef",
+        "name": "JSON >> obj (event)",
+        "property": "payload",
+        "action": "obj",
+        "pretty": false,
+        "x": 380,
+        "y": 500,
+        "wires": [
+            [
+                "62747515dfdb9117",
+                "f61bfa3dce75aa13"
+            ]
+        ]
+    },
+    {
+        "id": "62747515dfdb9117",
+        "type": "function",
+        "z": "3fef1023aece59ef",
+        "name": "event >> row (tabela)",
+        "func": "const d=msg.payload||{};\nmsg.payload=[{\n    ts:new Date((d.ts||Date.now())).toLocaleString(),\n    type:d.type,\n    level:d.level,\n    message:d.message\n}];\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 680,
+        "y": 500,
+        "wires": [
+            [
+                "e343efc9aa6a1090"
+            ]
+        ]
+    },
+    {
+        "id": "f61bfa3dce75aa13",
+        "type": "function",
+        "z": "3fef1023aece59ef",
+        "name": "event >> Mongo doc",
+        "func": "const p=msg.payload||{};\nmsg.payload={\n    ts:new Date((p.ts||Math.floor(Date.now()/1000))*1000),\n    cellId:p.cellId,\n    devId:p.devId,\n    type:p.type,\n    level:p.level,\n    message:p.message,\n    data:p.data,\n    _topic:msg.topic\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 680,
+        "y": 580,
+        "wires": [
+            [
+                "46a58573398722ba"
+            ]
+        ]
+    },
+    {
+        "id": "12c162512e129541",
+        "type": "mqtt in",
+        "z": "3fef1023aece59ef",
+        "name": "state",
+        "topic": "iot/riodosul/si/BSN22025T26F8/cell/09/device/c09-ayrton-djonatan/state",
+        "qos": "1",
+        "datatype": "auto",
+        "broker": "74afebde8a3aa745",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 110,
+        "y": 640,
+        "wires": [
+            [
+                "25e076461b5c955c"
+            ]
+        ]
+    },
+    {
+        "id": "25e076461b5c955c",
+        "type": "function",
+        "z": "3fef1023aece59ef",
+        "name": "State >> Cabeçalho",
+        "func": "msg.payload=String(msg.payload);\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 380,
+        "y": 640,
+        "wires": [
+            [
+                "d144773fbb739456"
+            ]
+        ]
+    },
+    {
+        "id": "7aab8256a33fc89f",
+        "type": "inject",
+        "z": "3fef1023aece59ef",
+        "name": "Atualizar o histórico (10s)",
+        "props": [],
+        "repeat": "10",
+        "crontab": "",
+        "once": false,
+        "onceDelay": "3",
+        "topic": "",
+        "x": 200,
+        "y": 740,
+        "wires": [
+            [
+                "a20e5c965184942b"
+            ]
+        ]
+    },
+    {
+        "id": "a20e5c965184942b",
+        "type": "function",
+        "z": "3fef1023aece59ef",
+        "name": "Query Telemetry",
+        "func": "const since=new Date(Date.now()-30*60*1000).toString();\nmsg.collection='telemetry';\nmsg.payload={\n    \"payload.devId\":'c09-ayrton-djonatan',\n    \"payload.ts\":{$gte:since}\n};\nmsg.sort={ts:1};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 500,
+        "y": 740,
+        "wires": [
+            [
+                "6d86600c55301eea"
+            ]
+        ]
+    },
+    {
+        "id": "748411f605d2c928",
+        "type": "function",
+        "z": "3fef1023aece59ef",
+        "name": "BD >> UI Chart (nivel_pct)",
+        "func": "const points = (msg.payload || []).map(d => ({ \n    x: new Date(d.ts), \n    y: (d.metrics && d.metrics.dist_cm != null) ? Number(d.metrics.dist_cm) : null })).filter(p => p.y !== null); \nmsg.payload = [{ series: [\"dist_cm\"], data: [points], labels: [] }]; \nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 960,
+        "y": 760,
+        "wires": [
+            [
+                "4bf4d6a63cee7b0d"
+            ]
+        ]
+    },
+    {
+        "id": "496e75da9514733a",
+        "type": "ui_button",
+        "z": "3fef1023aece59ef",
+        "name": "",
+        "group": "ef43bd5ece968563",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "label": "Get Status",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "fa-send",
+        "payload": "",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "x": 130,
+        "y": 200,
+        "wires": [
+            [
+                "b166115a8a147b57"
+            ]
+        ]
+    },
+    {
+        "id": "d144773fbb739456",
+        "type": "ui_text",
+        "z": "3fef1023aece59ef",
+        "group": "1653beaaecc9e3d9",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Estado:",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#000000",
+        "x": 640,
+        "y": 640,
+        "wires": []
+    },
+    {
+        "id": "d52a9de9c8a7c895",
+        "type": "ui_gauge",
+        "z": "3fef1023aece59ef",
+        "name": "Distância (cm)",
+        "group": "ef43bd5ece968563",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "gtype": "donut",
+        "title": "Distância (cm)",
+        "label": "cm",
+        "format": "{{value}}",
+        "min": "1",
+        "max": "10",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "5",
+        "seg2": "7",
+        "diff": false,
+        "className": "",
+        "x": 880,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "4bf4d6a63cee7b0d",
+        "type": "ui_chart",
+        "z": "3fef1023aece59ef",
+        "name": "Histórico Nível PCT  (30 min.)",
+        "group": "67e7023ff10c2eb3",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "label": "Nível PCT - 30 min.",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "sem dados",
+        "dot": false,
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": "30",
+        "removeOlderPoints": "",
+        "removeOlderUnit": "1",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 1260,
+        "y": 760,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e343efc9aa6a1090",
+        "type": "ui_table",
+        "z": "3fef1023aece59ef",
+        "group": "7e65e8dac9b62639",
+        "name": "Eventos (últimos 20)",
+        "order": 0,
+        "width": "0",
+        "height": "0",
+        "columns": [
+            {
+                "field": "type",
+                "title": "Evento",
+                "width": "50%",
+                "align": "center",
+                "formatter": "plaintext",
+                "formatterParams": {
+                    "target": "_blank"
+                }
+            },
+            {
+                "field": "message",
+                "title": "Status",
+                "width": "50%",
+                "align": "left",
+                "formatter": "plaintext",
+                "formatterParams": {
+                    "target": "_blank"
+                }
+            }
+        ],
+        "outputs": 0,
+        "cts": false,
+        "x": 960,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "e073ae345c07eb77",
+        "type": "mongodb out",
+        "z": "3fef1023aece59ef",
+        "mongodb": "bccdd366139df626",
+        "name": "insert telemetry",
+        "collection": "telemetry",
+        "payonly": false,
+        "upsert": false,
+        "multi": false,
+        "operation": "insert",
+        "x": 960,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "46a58573398722ba",
+        "type": "mongodb out",
+        "z": "3fef1023aece59ef",
+        "mongodb": "bccdd366139df626",
+        "name": "insert events",
+        "collection": "event",
+        "payonly": false,
+        "upsert": false,
+        "multi": false,
+        "operation": "insert",
+        "x": 930,
+        "y": 580,
+        "wires": []
+    },
+    {
+        "id": "6d86600c55301eea",
+        "type": "mongodb in",
+        "z": "3fef1023aece59ef",
+        "mongodb": "bccdd366139df626",
+        "name": "find telemetry",
+        "collection": "telemetry",
+        "operation": "find",
+        "x": 700,
+        "y": 760,
+        "wires": [
+            [
+                "748411f605d2c928"
+            ]
+        ]
+    },
+    {
+        "id": "74afebde8a3aa745",
+        "type": "mqtt-broker",
+        "name": "broker",
+        "broker": "broker.hivemq.com",
+        "port": "1883",
+        "tls": "",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "ef43bd5ece968563",
+        "type": "ui_group",
+        "name": "Métricas",
+        "tab": "cc3f0305a423600f",
+        "order": 2,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "67e7023ff10c2eb3",
+        "type": "ui_group",
+        "name": "Histórico",
+        "tab": "cc3f0305a423600f",
+        "order": 4,
+        "disp": true,
+        "width": 6,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "7e65e8dac9b62639",
+        "type": "ui_group",
+        "name": "Eventos",
+        "tab": "cc3f0305a423600f",
+        "order": 3,
+        "disp": true,
+        "width": 6,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "bccdd366139df626",
+        "type": "mongodb",
+        "hostname": "mongo",
+        "topology": "direct",
+        "connectOptions": "authSource=admin",
+        "port": 27017,
+        "db": "iot",
+        "name": "mongo-iot"
+    },
+    {
+        "id": "cc3f0305a423600f",
+        "type": "ui_tab",
+        "name": "Dashboard Célula 09",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "dd50465954d7ecd3",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-dashboard": "3.6.6",
+            "node-red-node-ui-table": "0.4.5",
+            "node-red-node-mongodb": "0.2.5"
+        }
+    }
+]

@@ -3,6 +3,7 @@
 
 Projeto de automação embarcada utilizando **Arduino MEGA**, **sensor ultrassônico HC-SR04** e **módulo Ethernet W5100**.  
 O sistema mede a distância de objetos em tempo real e envia os dados para um servidor web via **protocolo **MQTT**.
+O sistema possui uma implementação utilizando Node-RED e MongoDB para assinatura dos tópicos mais relevantes da aplicação, para que seja possivel a implementação de dashboards e persistencia de dados.
 
 ---
 
@@ -16,6 +17,8 @@ Para a aplicação local sem levar em conta a comunicação de dados, temos leds
 
 ---
 
+
+
 ## Bibliotecas utilizadas
 
 - PubSubClient.h
@@ -26,10 +29,30 @@ Para a aplicação local sem levar em conta a comunicação de dados, temos leds
 
 ## 🧩 Instruções de Execução
 
-Realizar o clone deste repositório, o upload do codigo fonte diretamente para o arduino.
+Realizar o clone deste repositório
+```bash
+git clone https://github.com/DjhonyOliveira/Iot.git
+```
+
+Realizar upload do codigo fonte diretamente para o arduino.
+
 Com a placa Ethernet já conectada na arduino e conectada em rede, ao realizar o uploading do fonte para a placa, a conexão com a rede já deve ser realizada de forma automática, buscando o DHCP de rede.
 
 - Para configuração do broker MQTT, se torna necessário a alteração do servidor de envio pela constante de sistema MQTT_SERVER.
+- Para a incialização do ambiente Node-RED, se torna necessário a instalação local do Docker
+
+
+Com o docker instalado em seu sistema, necessário executar o seguinte comando para build dos containers
+
+```bash
+docker compose up -d
+```
+
+Após container buildados, acesse: localhost:1880, no canto superior direito do Node-RED existe um menu "hamburgues", dentro dele seleciona a opção "importar" e importe o JSON "fluxoNodeRed" presente neste repositório
+
+Com o fluxo do Node-RED importado, acesse o endereço do MongoDB localhost:8081, e se conecte com as credenciais definidas no docker compose. Crie o banco iot com as collections event e telemetry
+
+Com as implementações realizadas, seu ambiente já estará finalizado para receber os dados do arduino.
 
 ---
 
@@ -94,14 +117,15 @@ Dispara os eventos de alteração de status do produto:
 - 🔍 Leitura contínua da distância em centímetros  
 - 🌐 Envio dos dados via MQTT
 - 💡 Reconexão automática à rede em caso de falha  
-- 🧭 Log serial para depuração e diagnóstico  
+- 🧭 Log serial para depuração e diagnóstico 
+- ⚡  Node-Red para Assinatura de tópicos e aplicação de dashboard
+- 📚 Persistencia de dados com MongoDB
 
 ---
 
 ## 👤 Autores
 
 Djonatan Oliveira e Ayrton Klettenberg
-
 
 
 ## 📜 Licença
